@@ -55,3 +55,33 @@
 		glutMainLoop();
 		return 0;
     }
+    
+### Dockerfile 
+	FROM node:14.7.0-alpine
+
+	WORKDIR /app
+
+	ENV NODE_ENV local
+
+	COPY package.json .
+
+	COPY package-lock.json .
+
+	RUN npm install
+
+	COPY . .
+
+	CMD ["/bin/node", "./bin/www"]
+
+	EXPOSE 3000
+
+### Reverse Proxy Node js
+	ProxyPreserveHost On
+        ProxyRequests Off
+        ProxyPass / http://0.0.0.0:8080/
+        ProxyPassReverse / http://0.0.0.0:8080/
+
+        RewriteEngine On
+        RewriteCond %{HTTP:Connection} Upgrade [NC]
+        RewriteCond %{HTTP:Upgrade} websocket [NC]
+        RewriteRule /(.*) ws://45.77.173.22:8080/$1 [P,L]
